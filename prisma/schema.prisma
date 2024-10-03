@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model medicine {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @default("")
+  stock              Int                  @default(0)
+  exp_date           DateTime             @default(now())
+  type               Drugtype
+  price              Float                @default(0) @db.Double
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @default(now())
+  photo              String               @default("")
+  transaction_detail transaction_detail[]
+}
+
+model transaction {
+  id                 Int                  @id @default(autoincrement())
+  cashier_name       String               @default("")
+  order_date         DateTime             @default(now())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  transaction_detail transaction_detail[]
+}
+
+model transaction_detail {
+  id                 Int         @id @default(autoincrement())
+  transaction_id     Int         @default(0)
+  medicine_id        Int         @default(0)
+  qty                Int         @default(0)
+  order_price        Float       @default(0) @db.Double
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @default(now()) @updatedAt
+  transaction_detail transaction @relation(fields: [transaction_id], references: [id])
+  medicine_detail    medicine    @relation(fields: [medicine_id], references: [id])
+}
+
+model admin {
+  id         Int      @id @default(autoincrement())
+  nama_admin String   @default("")
+  password   String   @default("")
+  email      String   @default("")
+  createdAt  DateTime @default(now()) 
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
+enum Drugtype {
+  Syrup
+  Tablet
+  Powder
+}
